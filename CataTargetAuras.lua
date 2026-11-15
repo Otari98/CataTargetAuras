@@ -37,6 +37,8 @@ TargetFrame.debuffs:SetWidth(10)
 TargetFrame.debuffs:SetHeight(10)
 TargetFrame.debuffs:Hide()
 
+DebuffTypeColor[""] = DebuffTypeColor["none"]
+
 function TargetFrame_UpdateAuras(self)
 	local numBuffs = 0
 	local selfName = self:GetName()
@@ -353,8 +355,6 @@ function TargetFrame_UpdateDebuffAnchor(self, debuffName, index, numBuffs, ancho
 	debuffFrame:SetWidth(size+2)
 	debuffFrame:SetHeight(size+2)
 end
-
-
 
 function TargetofTarget_Update()
 	local self = TargetofTargetFrame
