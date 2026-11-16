@@ -39,6 +39,42 @@ TargetFrame.debuffs:Hide()
 
 DebuffTypeColor[""] = DebuffTypeColor["none"]
 
+local Buff_OnUpdate = function(self, elapsed)
+	if GameTooltip:IsOwned(self) then
+		GameTooltip:SetUnitAura(self.unit, self:GetID(), "HELPFUL");
+	end
+end
+
+local Buff_OnEnter = function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 15, -25);
+	GameTooltip:SetUnitAura(self.unit, self:GetID(), "HELPFUL");
+end
+
+local Debuff_OnUpdate = function(self, elapsed)
+	if GameTooltip:IsOwned(self) then
+		GameTooltip:SetUnitAura(self.unit, self:GetID(), "HARMFUL");
+	end
+end
+
+local Debuff_OnEnter = function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 15, -25);
+	GameTooltip:SetUnitAura(self.unit, self:GetID(), "HARMFUL");
+end
+
+for i = 1, 5 do
+	local frame = _G["TargetFrameBuff"..i]
+	frame:SetScript("OnEnter", Buff_OnEnter)
+	frame:SetScript("OnUpdate", Buff_OnUpdate)
+	frame.unit = "target"
+end
+
+for i = 1, 16 do
+	local frame = _G["TargetFrameDebuff"..i]
+	frame:SetScript("OnEnter", Debuff_OnEnter)
+	frame:SetScript("OnUpdate", Debuff_OnUpdate)
+	frame.unit = "target"
+end
+
 function TargetFrame_UpdateAuras(self)
 	local numBuffs = 0
 	local selfName = self:GetName()
@@ -55,11 +91,11 @@ function TargetFrame_UpdateAuras(self)
 		local frame = _G[frameName]
 		if icon then
 			if ( not frame ) then
-				frame = CreateFrame("Button", frameName, self, "TargetBuffButtonTemplate")
+				frame = CreateFrame("Button", frameName, self, "TargetBuffFrameTemplate")
 				frame.unit = self.unit
 			end
 			frame:SetID(i)
-			frame.id = i
+
 			-- set the icon
 			local frameIcon = _G[frameName.."Icon"]
 			frameIcon:SetTexture(icon)
@@ -133,11 +169,11 @@ function TargetFrame_UpdateAuras(self)
 		local frame = _G[frameName]
 		if ( icon ) then
 			if ( not frame ) then
-				frame = CreateFrame("Button", frameName, self, "TargetDebuffButtonTemplate")
+				frame = CreateFrame("Button", frameName, self, "TargetDebuffFrameTemplate")
 				frame.unit = self.unit
 			end
 			frame:SetID(i)
-			frame.id = i
+
 			-- set the icon
 			local frameIcon = _G[frameName.."Icon"]
 			frameIcon:SetTexture(icon)
