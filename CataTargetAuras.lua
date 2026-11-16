@@ -51,16 +51,11 @@ function TargetFrame_UpdateAuras(self)
 		local name, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge = C_UnitAuras.UnitBuff(self.unit, i, filter)
 		local frameName = selfName.."Buff"..i
 		local frame = _G[frameName]
-		if ( not frame ) then
-			if ( not icon ) then
-				break
-			else
-				-- frame = CreateFrame("Button", frameName, self, "TargetBuffFrameTemplate")
+		if icon then
+			if ( not frame ) then
 				frame = CreateFrame("Button", frameName, self, "TargetBuffButtonTemplate")
 				frame.unit = self.unit
 			end
-		end
-		if ( icon and ( not self.maxBuffs or i <= self.maxBuffs ) ) then
 			frame:SetID(i)
 			frame.id = i
 			-- set the icon
@@ -89,13 +84,7 @@ function TargetFrame_UpdateAuras(self)
 				frameCooldown:SetDrawEdge(true)
 				frameCooldown:SetPoint("CENTER", frame, "CENTER", 0, -1)
 			end
-
-			if ( duration > 0 ) then
-				frameCooldown:Show()
-				CooldownFrame_SetTimer(frameCooldown, expirationTime - duration, duration, 1)
-			else
-				frameCooldown:Hide()
-			end
+			CooldownFrame_SetTimer(frameCooldown, expirationTime - duration, duration, 1)
 
 			-- Show stealable frame if the target is not the current player and the buff is stealable.
 			local frameStealable = _G[frameName.."Stealable"]
@@ -120,7 +109,7 @@ function TargetFrame_UpdateAuras(self)
 
 			frame:ClearAllPoints()
 			frame:Show()
-		else
+		elseif frame then
 			frame:Hide()
 		end
 	end
@@ -136,85 +125,63 @@ function TargetFrame_UpdateAuras(self)
 		filter = nil
 	end
 	
-	local frameNum = 1
-	local index = 1
-	
-	while ( frameNum <= (self.maxDebuffs or MAX_TARGET_DEBUFFS) ) do
-		local name, icon, count, debuffType, duration, expirationTime, caster = C_UnitAuras.UnitDebuff(self.unit, index, filter)
-		if not name then break end
-		if ( TargetFrame_ShouldShowDebuff(self.unit, index, filter) ) then
-			local frameName = selfName.."Debuff"..frameNum
-			local frame = _G[frameName]
-			if ( icon ) then
-				if ( not frame ) then
-					-- frame = CreateFrame("Button", frameName, self, "TargetDebuffFrameTemplate")
-					frame = CreateFrame("Button", frameName, self, "TargetDebuffButtonTemplate")
-					frame.unit = self.unit
-				end
-				frame:SetID(index)
-				frame.id = index
-				-- set the icon
-				local frameIcon = _G[frameName.."Icon"]
-				frameIcon:SetTexture(icon)
-
-				-- set the count
-				local frameCount = _G[frameName.."Count"]
-				if not frameCount then
-					frameCount = frame:CreateFontString("$parentCount", "ARTWORK", "NumberFontNormalSmall")
-					frameCount:SetJustifyH("RIGHT")
-					frameCount:SetPoint("BOTTOMRIGHT", 3, 0)
-				end
-				if ( count > 1 and self.showAuraCount ) then
-					frameCount:SetText(count)
-					frameCount:Show()
-				else
-					frameCount:Hide()
-				end
-
-				-- Handle cooldowns
-				local frameCooldown = _G[frameName.."Cooldown"]
-				if not frameCooldown then
-					frameCooldown = CreateFrame("Cooldown", "$parentCooldown", frame, "CooldownFrameTemplate")
-					frameCooldown:SetReverse(true)
-					frameCooldown:SetDrawEdge(true)
-					frameCooldown:SetPoint("CENTER", frame, "CENTER", 0, -1)
-				end
-				if ( duration > 0 ) then
-					frameCooldown:Show()
-					CooldownFrame_SetTimer(frameCooldown, expirationTime - duration, duration, 1)
-				else
-					frameCooldown:Hide()
-				end
-
-				-- set debuff type color
-				if ( debuffType ) then
-					color = DebuffTypeColor[debuffType]
-				else
-					color = DebuffTypeColor["none"]
-				end
-				frameBorder = _G[frameName.."Border"]
-				frameBorder:SetVertexColor(color.r, color.g, color.b)
-
-				-- set the debuff to be big if the buff is cast by the player or his pet
-				largeDebuffList[index] = caster == "player" or caster == "pet"
-
-				numDebuffs = numDebuffs + 1
-
-				frame:ClearAllPoints()
-				frame:Show()
-				
-				frameNum = frameNum + 1
+	for i = 1, MAX_TARGET_DEBUFFS do
+		local name, icon, count, debuffType, duration, expirationTime, caster = C_UnitAuras.UnitDebuff(self.unit, i, filter)
+		local frameName = selfName.."Debuff"..i
+		local frame = _G[frameName]
+		if ( icon ) then
+			if ( not frame ) then
+				frame = CreateFrame("Button", frameName, self, "TargetDebuffButtonTemplate")
+				frame.unit = self.unit
 			end
-		end
-		index = index + 1
-	end
-	
-	for i = frameNum, MAX_TARGET_DEBUFFS do
-		local frame = _G[selfName.."Debuff"..i]
-		if ( frame ) then
+			frame:SetID(i)
+			frame.id = i
+			-- set the icon
+			local frameIcon = _G[frameName.."Icon"]
+			frameIcon:SetTexture(icon)
+
+			-- set the count
+			local frameCount = _G[frameName.."Count"]
+			if not frameCount then
+				frameCount = frame:CreateFontString("$parentCount", "ARTWORK", "NumberFontNormalSmall")
+				frameCount:SetJustifyH("RIGHT")
+				frameCount:SetPoint("BOTTOMRIGHT", 3, 0)
+			end
+			if ( count > 1 and self.showAuraCount ) then
+				frameCount:SetText(count)
+				frameCount:Show()
+			else
+				frameCount:Hide()
+			end
+
+			-- Handle cooldowns
+			local frameCooldown = _G[frameName.."Cooldown"]
+			if not frameCooldown then
+				frameCooldown = CreateFrame("Cooldown", "$parentCooldown", frame, "CooldownFrameTemplate")
+				frameCooldown:SetReverse(true)
+				frameCooldown:SetDrawEdge(true)
+				frameCooldown:SetPoint("CENTER", frame, "CENTER", 0, -1)
+			end
+			CooldownFrame_SetTimer(frameCooldown, expirationTime - duration, duration, 1)
+
+			-- set debuff type color
+			if ( debuffType ) then
+				color = DebuffTypeColor[debuffType]
+			else
+				color = DebuffTypeColor["none"]
+			end
+			frameBorder = _G[frameName.."Border"]
+			frameBorder:SetVertexColor(color.r, color.g, color.b)
+
+			-- set the debuff to be big if the buff is cast by the player or his pet
+			largeDebuffList[i] = caster == "player" or caster == "pet"
+
+			numDebuffs = numDebuffs + 1
+
+			frame:ClearAllPoints()
+			frame:Show()
+		elseif frame then
 			frame:Hide()
-		else
-			break
 		end
 	end
 	
@@ -236,26 +203,6 @@ function TargetFrame_UpdateAuras(self)
 	-- update debuff positions
 	maxRowWidth = ( haveTargetofTarget and self.auraRows < NUM_TOT_AURA_ROWS and self.TOT_AURA_ROW_WIDTH ) or AURA_ROW_WIDTH
 	TargetFrame_UpdateAuraPositions(self, selfName.."Debuff", numDebuffs, numBuffs, largeDebuffList, TargetFrame_UpdateDebuffAnchor, maxRowWidth, 4, mirrorAurasVertically)
-	-- update the spell bar position
-	if ( self.spellbar ) then
-		-- Target_Spellbar_AdjustPosition(self.spellbar)
-	end
-end
-
-function TargetFrame_ShouldShowDebuff(unit, index, filter)
-	--This is an enemy
-	if ( SHOW_ALL_ENEMY_DEBUFFS == "1" or not UnitCanAttack("player", unit) ) then
-		return true
-	else
-		local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, shouldConsolidate, spellId, canApplyAura, isBossDebuff, isCastByPlayer = C_UnitAuras.UnitDebuff(unit, index, filter)
-
-		-- local hasCustom, alwaysShowMine, showForMySpec = SpellGetVisibilityInfo(spellId, "ENEMY_TARGET")
-		-- if ( hasCustom ) then
-		-- 	return showForMySpec or (alwaysShowMine and (unitCaster == "player" or unitCaster == "pet" or unitCaster == "vehicle") )
-		-- else
-			return not isCastByPlayer or unitCaster == "player" or unitCaster == "pet" or unitCaster == "vehicle"
-		-- end
-	end
 end
 
 function TargetFrame_UpdateAuraPositions(self, auraName, numAuras, numOppositeAuras, largeAuraList, updateFunc, maxRowWidth, offsetX, mirrorAurasVertically)
