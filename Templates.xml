@@ -23,25 +23,20 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate" reverse="true" drawEdge="true" hidden="true">
+			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate" reverse="true" drawEdge="true" hidden="true" hideCountdownNumbers="true">
 				<Anchors>
 					<Anchor point="CENTER" x="0" y="-1"/>
 				</Anchors>
 			</Cooldown>
 		</Frames>
 		<Scripts>
-			<OnUpdate>
-				if ( GameTooltip:IsOwned(self) ) then
-					GameTooltip:SetUnitAura(self.unit, self:GetID(), "HARMFUL");
-				end
-			</OnUpdate>
-			<OnEnter>
-				GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 15, -25);
-				GameTooltip:SetUnitAura(self.unit, self:GetID(), "HARMFUL");
-			</OnEnter>
-			<OnLeave>
-				GameTooltip:Hide();
-			</OnLeave>
+			<OnLoad>
+				self.unit = TargetFrame.unit
+				self.filter = "HARMFUL"
+			</OnLoad>
+			<OnUpdate function="TargetFrame_AuraOnUpdate"/>
+			<OnEnter function="TargetFrame_AuraOnEnter"/>
+			<OnLeave function="GameTooltip_Hide"/>
 		</Scripts>
 	</Frame>
 	<Frame name="TargetBuffFrameTemplate" virtual="true" enableMouse="true">
@@ -67,25 +62,20 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate" reverse="true" drawEdge="true">
+			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate" reverse="true" drawEdge="true" hideCountdownNumbers="true">
 				<Anchors>
 					<Anchor point="CENTER" x="0" y="-1"/>
 				</Anchors>
 			</Cooldown>
 		</Frames>
 		<Scripts>
-			<OnUpdate>
-				if ( GameTooltip:IsOwned(self) ) then
-					GameTooltip:SetUnitAura(self.unit, self:GetID(), "HELPFUL");
-				end
-			</OnUpdate>
-			<OnEnter>
-				GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 15, -25);
-				GameTooltip:SetUnitAura(self.unit, self:GetID(), "HELPFUL");
-			</OnEnter>
-			<OnLeave>
-				GameTooltip:Hide();
-			</OnLeave>
+			<OnLoad>
+				self.unit = TargetFrame.unit
+				self.filter = "HELPFUL"
+			</OnLoad>
+			<OnUpdate function="TargetFrame_AuraOnUpdate"/>
+			<OnEnter function="TargetFrame_AuraOnEnter"/>
+			<OnLeave function="GameTooltip_Hide"/>
 		</Scripts>
 	</Frame>
 </Ui>

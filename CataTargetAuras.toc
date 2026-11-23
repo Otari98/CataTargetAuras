@@ -1,8 +1,8 @@
 ## Interface: 11200
 ## Title: CataTargetAuras
 ## Notes: Backport of cataclysm target auras to vanilla.
-## Version: 1.0.1
+## Version: 1.0.2
 ## Author: Spith
 
-Templates.xml
 CataTargetAuras.lua
+Templates.xml
